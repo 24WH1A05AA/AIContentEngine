@@ -1,125 +1,126 @@
-"""Promotional video generation — uses REPLICATE_API_KEY exclusively."""
+"""Promotional video generation — uses Hugging Face Inference API for AI video generation."""
 
-import time
+import os
 import requests
-from config import (
-    REPLICATE_API_KEY,
-    REPLICATE_BASE_URL,
-    REPLICATE_VIDEO_MODELS,
-    IMAGE_TIMEOUT,
-    REQUEST_TIMEOUT,
-    VIDEO_POLL_TIMEOUT,
-)
+from pathlib import Path
+from config import IMAGE_TIMEOUT, REQUEST_TIMEOUT, HF_API_KEY, HF_VIDEO_MODEL, HF_API_BASE_URL, VIDEO_TIMEOUT
+
+OUTPUT_DIR = Path("generated_videos")
 
 
 class MediaAPIError(Exception):
-    """Raised when REPLICATE_API_KEY fails for video generation."""
+    """Raised when video generation fails."""
 
 
-class ReplicateVideoClient:
+class HuggingFaceVideoClient:
     """
-    HTTP client for video generation via Replicate.
-    Uses REPLICATE_API_KEY exclusively. Never used for text or image.
-    Primary: wavespeedai/wan-2.1-t2v-480p
-    Backup:  genmoai/mochi-1-preview
+    HTTP client for AI video generation via Hugging Face Inference API.
+    Uses HF_API_KEY for video generation.
+    Model: damo-vilab/text-to-video-ms-1.7b (free tier available)
     """
 
     def __init__(self) -> None:
-        assert REPLICATE_API_KEY, (
-            "REPLICATE_API_KEY is missing. Cannot perform video generation."
-        )
-        self._headers = {
-            "Authorization": f"Bearer {REPLICATE_API_KEY}",
-            "Content-Type": "application/json",
-            "Prefer": "wait",  # wait up to 60s for result inline
-        }
-
-    def _run_model(self, model_id: str, prompt: str) -> str:
-        """
-        Submit prediction to Replicate and poll until complete.
-
-        Returns:
-            str: URL of the generated video.
-        """
-        # Create prediction
-        response = requests.post(
-            f"{REPLICATE_BASE_URL}/models/{model_id}/predictions",
-            headers=self._headers,
-            json={"input": {"prompt": prompt}},
-            timeout=IMAGE_TIMEOUT,
-        )
-        response.raise_for_status()
-        prediction = response.json()
-
-        # If already completed (Prefer: wait)
-        if prediction.get("status") == "succeeded":
-            output = prediction.get("output")
-            return output[0] if isinstance(output, list) else output
-
-        prediction_id = prediction["id"]
-        poll_url = f"{REPLICATE_BASE_URL}/predictions/{prediction_id}"
-
-        # Poll for completion
-        deadline = time.time() + VIDEO_POLL_TIMEOUT
-        while time.time() < deadline:
-            poll = requests.get(poll_url, headers=self._headers, timeout=REQUEST_TIMEOUT)
-            poll.raise_for_status()
-            data = poll.json()
-            status = data.get("status")
-
-            if status == "succeeded":
-                output = data.get("output")
-                return output[0] if isinstance(output, list) else output
-            elif status == "failed":
-                raise MediaAPIError(
-                    f"Replicate video generation failed: {data.get('error', 'Unknown error')}"
-                )
-
-            time.sleep(5)
-
-        raise MediaAPIError(f"Video generation exceeded {VIDEO_POLL_TIMEOUT}s timeout")
+        self.api_key = HF_API_KEY
+        self.api_url = f"{HF_API_BASE_URL}/{HF_VIDEO_MODEL}"
+        
+    def _get_headers(self) -> dict:
+        """Get request headers with API key if available."""
+        headers = {"Content-Type": "application/json"}
+        if self.api_key:
+            headers["Authorization"] = f"Bearer {self.api_key}"
+        return headers
 
     def generate_video(self, prompt: str) -> str:
         """
-        Generate video with Wan2.1 primary, CogVideoX backup.
+        Generate video via Hugging Face Inference API.
+        
+        Model: damo-vilab/text-to-video-ms-1.7b
+        - Free tier: 30 calls/minute
+        - High quality video generation
+        - No rate limiting issues like Replicate
 
         Returns:
-            str: URL of the generated video.
+            str: URL or local path of the generated video.
 
         Raises:
-            MediaAPIError: If all models fail.
+            MediaAPIError: If generation fails.
         """
-        last_error = None
-        for model_key, model_id in REPLICATE_VIDEO_MODELS.items():
-            try:
-                return self._run_model(model_id, prompt)
-            except MediaAPIError as e:
-                last_error = f"{model_id}: {e}"
-            except requests.exceptions.Timeout:
-                last_error = f"{model_id}: timeout"
-            except requests.exceptions.RequestException as e:
-                last_error = f"{model_id}: {e}"
+        try:
+            headers = self._get_headers()
+            
+            # Request video generation
+            payload = {"inputs": prompt}
+            
+            response = requests.post(
+                self.api_url,
+                headers=headers,
+                json=payload,
+                timeout=VIDEO_TIMEOUT,
+            )
+            
+            # Check response status
+            if response.status_code == 503:
+                raise MediaAPIError(
+                    "Hugging Face model is loading. Model will be ready in a moment. Please try again."
+                )
+            elif response.status_code == 529:
+                raise MediaAPIError(
+                    "Hugging Face service temporarily overloaded. Please try again in a minute."
+                )
+            elif response.status_code == 401:
+                raise MediaAPIError(
+                    "HF_API_KEY is invalid. Get a free token at https://huggingface.co/settings/tokens"
+                )
+            
+            response.raise_for_status()
+            
+            # Hugging Face returns binary video content
+            OUTPUT_DIR.mkdir(exist_ok=True)
+            video_path = OUTPUT_DIR / "generated_video.mp4"
+            
+            with open(video_path, "wb") as f:
+                f.write(response.content)
+            
+            return str(video_path)
+            
+        except requests.exceptions.Timeout:
+            raise MediaAPIError("Video generation timed out. Hugging Face model processing took too long. Try again.")
+        except requests.exceptions.RequestException as e:
+            if "401" in str(e) or "unauthorized" in str(e).lower():
+                raise MediaAPIError(
+                    "HF_API_KEY is invalid or missing. "
+                    "Get a free token at https://huggingface.co/settings/tokens"
+                )
+            raise MediaAPIError(f"Video generation failed: {e}")
+        except Exception as e:
+            raise MediaAPIError(f"Unexpected error during video generation: {e}")
 
-        raise MediaAPIError(
-            f"Video generation failed (REPLICATE_API_KEY). Last error: {last_error}\n"
-            "Check that REPLICATE_API_KEY in your .env is valid."
-        )
 
-
-_client = ReplicateVideoClient()
+_client = HuggingFaceVideoClient()
 
 
 def generate_video(hero_image_url: str, product_name: str, brand_tone: str) -> str:
     """
-    Generate promotional video via REPLICATE_API_KEY using Wan2.1/CogVideoX.
+    Generate promotional video via Hugging Face AI models.
+    
+    Uses: damo-vilab/text-to-video-ms-1.7b (free tier available)
+    
+    Args:
+        hero_image_url: Image URL (for reference, not used in generation)
+        product_name: Product name for video context
+        brand_tone: Brand tone/style for video
 
     Returns:
-        str: URL of the generated video.
+        str: Path to the generated video file.
+
+    Raises:
+        MediaAPIError: If video generation fails.
     """
     prompt = (
-        f"Slow cinematic push-in on {product_name}. "
-        f"Soft lighting with gentle highlights. "
-        f"Minimal background movement. Professional marketing video. "
-        f"Tone: {brand_tone}. High quality product showcase."
+        f"Professional marketing video for {product_name}. "
+        f"Slow cinematic product showcase with gentle lighting. "
+        f"Smooth camera movement, clean background. "
+        f"Style: {brand_tone}. "
+        f"High quality, professional production."
     )
     return _client.generate_video(prompt)

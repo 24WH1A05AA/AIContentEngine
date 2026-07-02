@@ -1,43 +1,76 @@
-# AI Content Engine - Technical Specification
+# AI Content Engine Pro - Technical Specification
 
 ## Project Overview
 
-AI Content Engine is a multi-modal Streamlit application that generates a complete marketing campaign from a single product brief. Using multiple AI services, the application produces five creative assets including text, image, and video.
+AI Content Engine Pro extends the original AI Content Engine by adding production-ready capabilities while preserving all existing functionality.
 
-The project demonstrates prompt engineering, AI orchestration, and multi-model pipelines by chaining multiple AI calls together.
+The application generates a complete marketing campaign from a single product brief using multiple Generative AI models. In Stage 2, it introduces AI quality evaluation, automatic regeneration, voiceover generation, and multi-channel adaptation.
 
 ---
 
-## Objectives
+# Project Stages
 
-- Accept a simple marketing brief.
-- Generate multiple campaign assets automatically.
-- Demonstrate prompt chaining across multiple AI models.
-- Produce professional marketing content with one click.
+## Stage 1 – AI Content Engine
+
+Generates:
+
+1. Campaign Tagline
+2. Blog Introduction
+3. Social Media Posts
+4. Hero Image
+5. Promotional Video
+
+---
+
+## Stage 2 – Content Engine Pro
+
+Adds:
+
+1. AI Self-Critique Loop
+2. Voiceover Generation
+3. Multi-Channel Adaptation
+
+---
+
+# Objectives
+
+- Accept a marketing brief.
+- Generate complete campaign assets.
+- Validate generated content automatically.
+- Regenerate weak content.
+- Generate voice narration.
+- Adapt campaigns for multiple audiences.
 
 ---
 
 # Inputs
 
-The application accepts:
-
 | Field | Type | Description |
-|-------|------|-------------|
-| Product Name | String | Name of the product |
+|------|------|-------------|
+| Product Name | String | Product name |
 | Target Audience | String | Intended audience |
-| Brand Tone | Dropdown | Brand personality (Premium, Eco, Playful, etc.) |
+| Brand Tone | Dropdown | Premium, Eco, Playful, etc. |
+| Adaptation Channel | Dropdown | LinkedIn, TikTok, Facebook |
 
 ---
 
 # Outputs
 
-The application generates:
+## Stage 1
 
-1. Campaign Tagline
-2. Blog Introduction (200 words)
-3. Social Media Posts
-4. Hero Image
-5. Promotional Video
+- Campaign Tagline
+- Blog Introduction
+- Social Media Posts
+- Hero Image
+- Promotional Video
+
+## Stage 2
+
+- AI Critique Report
+- Regenerated Content (if required)
+- Voiceover Script
+- MP3 Audio
+- Adapted Campaign
 
 ---
 
@@ -45,145 +78,129 @@ The application generates:
 
 ## FR1 — Campaign Tagline
 
-Generate:
-
-- Maximum 10 words
+- Max 10 words
 - Few-shot prompting
-- Matches brand tone
-- No hashtags
-
----
+- Brand-aware
 
 ## FR2 — Blog Introduction
 
-Generate:
-
-- Exactly 200 words
-- Role-based prompt
+- Approximately 200 words
 - Uses generated tagline
-- Matches target audience
-
----
+- Audience-specific
 
 ## FR3 — Social Media Posts
 
-Generate JSON output containing:
+Generate JSON:
 
 ```json
 {
-  "twitter": "...",
-  "instagram": "...",
-  "linkedin": "..."
+  "twitter":"",
+  "instagram":"",
+  "linkedin":""
 }
 ```
 
-Character Limits
-
-Twitter ≤280
-
-Instagram ≤2200
-
-LinkedIn ≤700
-
----
-
 ## FR4 — Hero Image
 
-Generate one hero image using GPT Image API.
-
-Image Prompt Formula
-
-Subject
-
-↓
-
-Style (derived from tone)
-
-↓
-
-Composition
-
-↓
-
-Constraints
-
-Example
-
-Photorealistic
-
-16:9
-
-Centered composition
-
-No text
-
-No logos
-
----
+Generate one hero image using prompt engineering.
 
 ## FR5 — Promotional Video
 
-Generate:
+Generate 5–8 second promotional video.
 
-- Image-to-video
-- 5–8 seconds
-- Runway API
-- Motion prompt
-- Cinematic push-in
+## FR6 — AI Self-Critique Loop
+
+Automatically evaluates:
+
+- Tone
+- Audience
+- Length
+- Product consistency
+
+Returns:
+
+```json
+{
+  "tagline":{"pass":true,"issue":null},
+  "blog":{"pass":false,"issue":"Length exceeded"},
+  "social":{"pass":true,"issue":null}
+}
+```
+
+Behavior
+
+- Automatic evaluation
+- Maximum 2 retries
+- Feedback injected into regeneration prompt
+- Warning displayed if still failing
+
+## FR7 — Voiceover Generation
+
+- Convert blog to narration script
+- Add punctuation cues
+- Remove visual references
+- Generate MP3 audio
+
+## FR8 — Multi-Channel Adaptation
+
+Supported channels:
+
+- B2B LinkedIn
+- Gen-Z TikTok
+- Parents Facebook
+
+Rewrites:
+
+- Tagline
+- Blog
+- Social Posts
+
+Keeps:
+
+- Hero Image
+- Promotional Video
 
 ---
 
-# Prompt Chain
+# Workflow
 
+```text
 User Brief
-      │
-      ▼
-Tagline
-      │
-      ▼
-Blog Introduction
-      │
-      ▼
-Image Prompt
-      │
-      ▼
+    ↓
+Generate Text Assets
+    ↓
+AI Self-Critique
+    ├── PASS
+    └── FAIL → Retry (Max 2)
+    ↓
 Hero Image
-      │
-      ▼
-Runway Motion Prompt
-      │
-      ▼
+    ↓
 Promotional Video
-
----
-
-# Application Workflow
-
-1. User enters product information.
-2. User clicks Generate.
-3. Generate tagline.
-4. Generate blog.
-5. Generate social media posts.
-6. Generate hero image.
-7. Generate promotional video.
-8. Display all generated assets.
+    ↓
+Voiceover
+    ↓
+Channel Adaptation
+    ↓
+Display Results
+```
 
 ---
 
 # Project Structure
 
-```
+```text
 content_engine/
-│
 ├── app.py
 ├── config.py
 ├── text_gen.py
 ├── image_gen.py
 ├── video_gen.py
-├── assets/
+├── critic.py
+├── voiceover.py
+├── adaptation.py
 ├── utils/
+├── assets/
 ├── requirements.txt
-├── .env
 └── README.md
 ```
 
@@ -191,38 +208,31 @@ content_engine/
 
 # AI Models
 
-## Text Generation
+## Text
 
+- OpenAI GPT-5
 - OpenRouter
-- GPT models
 
-## Image Generation
+## Image
 
-- GPT Image API
-- gpt-image-2
+- Gemini Image Generation
 
-## Video Generation
+## Video
 
-- Runway API
+- Gemini Video Generation
 
----
+## Audio
 
-# APIs
-
-OpenRouter API
-
-GPT Image API
-
-Runway API
+- OpenAI TTS / ElevenLabs
 
 ---
 
 # Environment Variables
 
-```
-OPENROUTER_API_KEY=
+```env
 OPENAI_API_KEY=
-RUNWAY_API_KEY=
+OPENROUTER_API_KEY_FOR_IMAGE_AND_VIDEO=
+ELEVENLABS_API_KEY=
 ```
 
 ---
@@ -230,32 +240,34 @@ RUNWAY_API_KEY=
 # Error Handling
 
 - Empty input validation
-- API retry logic
-- Invalid API key handling
-- Network timeout handling
+- Missing API keys
+- Network failures
+- Retry logic
+- Voice generation failures
+- Adaptation failures
 - Graceful error messages
 
 ---
 
 # Future Enhancements
 
-- Voice-over generation
-- Download campaign as ZIP
-- Multiple tagline variants
-- Campaign history
-- Prompt editor
-- Multi-language generation
+- A/B Testing
+- Campaign PDF Export
+- Cost Tracker
+- Campaign History
+- Multilingual Support
+- Brand Memory
 
 ---
 
 # Success Criteria
 
-The application successfully generates:
+The application successfully:
 
-- Brand-consistent tagline
-- 200-word blog
-- Platform-specific social posts
-- Hero image
-- 5–8 second promotional video
-
-from one product brief using one Generate button.
+- Generates all Stage 1 campaign assets.
+- Validates content using AI.
+- Automatically regenerates weak outputs.
+- Produces a playable voiceover.
+- Adapts campaign text for multiple channels.
+- Preserves image and video during adaptation.
+- Handles invalid input gracefully.

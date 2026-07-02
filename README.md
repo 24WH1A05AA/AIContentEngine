@@ -1,34 +1,94 @@
-# 🚀 AI Content Engine
+# 🚀 Content Engine Pro
 
-Generate an entire marketing campaign from a single product brief using Generative AI.
+> Generate an end-to-end AI-powered marketing campaign from a single product brief.
 
-AI Content Engine is a Streamlit application that combines text generation, image generation, and video generation into one seamless workflow.
+Content Engine Pro extends the original AI Content Engine with production-ready capabilities including AI self-critique, automatic regeneration, voiceover generation, and multi-channel content adaptation.
 
 ---
 
-## ✨ Features
+# 📌 Project Stages
+
+## Stage 1 – AI Content Engine
+
+The original project generates a complete marketing campaign from a single product brief using Generative AI.
+
+### Features
 
 Generate in one click:
 
-✅ Campaign Tagline
-
-✅ 200-word Blog Introduction
-
-✅ Social Media Posts
-
-✅ Hero Image
-
-✅ Promotional Video
+* ✅ Campaign Tagline
+* ✅ 200-word Blog Introduction
+* ✅ Social Media Posts
+* ✅ Hero Image
+* ✅ Promotional Video
+* ✅ Prompt Chaining
+* ✅ Streamlit Interface
 
 ---
 
-## 🖥️ Demo Workflow
+## Stage 2 – Content Engine Pro
+
+Stage 2 upgrades the project with three production-ready capabilities.
+
+### 🤖 AI Self-Critique Loop
+
+* Reviews tagline, blog, and social posts automatically
+* Validates tone, audience, length, and product accuracy
+* Automatically regenerates weak outputs
+* Maximum 2 retries
+* Displays PASS/FAIL verdict
+
+### 🎙 Voiceover Generation
+
+* Converts blog into a narration script
+* Adds punctuation for natural pauses
+* Removes visual references
+* Generates playable MP3 audio
+
+### 🔄 Multi-Channel Adaptation
+
+Supports:
+
+* B2B LinkedIn
+* Gen-Z TikTok
+* Parents Facebook
+
+Rewrites:
+
+* Campaign Tagline
+* Blog Introduction
+* Social Media Posts
+
+Hero Image and Promotional Video remain unchanged.
+
+---
+
+# ✨ Features
+
+Generate in one click:
+
+* ✅ Campaign Tagline
+* ✅ Blog Introduction
+* ✅ Social Media Posts
+* ✅ Hero Image
+* ✅ Promotional Video
+
+Additional Content Engine Pro features:
+
+* 🤖 AI Self-Critique
+* 🔁 Automatic Regeneration
+* 🎙 Voiceover Generation
+* 🔄 Multi-Channel Adaptation
+
+---
+
+# 🖥️ Demo Workflow
 
 Input
 
-- Product Name
-- Target Audience
-- Brand Tone
+* Product Name
+* Target Audience
+* Brand Tone
 
 ↓
 
@@ -38,47 +98,76 @@ Generate
 
 AI creates
 
-- Tagline
-- Blog
-- Social Posts
-- Hero Image
-- Video
+* Tagline
+* Blog
+* Social Posts
+* Hero Image
+* Promotional Video
 
 ↓
 
-Display all assets
+AI Self-Critique
+
+↓
+
+Voiceover
+
+↓
+
+Channel Adaptation
+
+↓
+
+Display Final Campaign
 
 ---
 
-# Tech Stack
+# 🏗 Tech Stack
 
-Frontend
+## Frontend
 
-- Streamlit
+* Streamlit
 
-Backend
+## Backend
 
-- Python
+* Python
 
-AI
+## AI
 
-- OpenRouter
-- GPT Models
-- GPT Image API
-- Runway API
+### Text Generation
+
+* OpenAI GPT-5
+* OpenRouter (Optional Text Models)
+
+### Image Generation
+
+* Gemini Image Generation
+
+### Video Generation
+
+* Gemini Video Generation
+
+### Voice Generation
+
+* OpenAI TTS / ElevenLabs
 
 ---
 
-# Project Structure
+# 📂 Project Structure
 
-```
+```text
 content_engine/
-│
+
 ├── app.py
 ├── config.py
 ├── text_gen.py
 ├── image_gen.py
 ├── video_gen.py
+├── critic.py
+├── voiceover.py
+├── adaptation.py
+├── utils/
+├── assets/
 ├── requirements.txt
 ├── .env
 └── README.md
@@ -86,14 +175,14 @@ content_engine/
 
 ---
 
-# Installation
+# ⚙ Installation
 
 Clone the repository
 
 ```bash
-git clone https://github.com/username/AIContentEngine.git
+git clone https://github.com/yourusername/ContentEnginePro.git
 
-cd AIContentEngine
+cd ContentEnginePro
 ```
 
 Create virtual environment
@@ -104,13 +193,13 @@ python -m venv .venv
 
 Activate environment
 
-Windows
+### Windows
 
 ```bash
 .venv\Scripts\activate
 ```
 
-Mac/Linux
+### Linux/macOS
 
 ```bash
 source .venv/bin/activate
@@ -124,19 +213,21 @@ pip install -r requirements.txt
 
 ---
 
-# Environment Variables
+# 🔑 Environment Variables
 
 Create a `.env` file
 
 ```env
-OPENROUTER_API_KEY=your_key
-OPENAI_API_KEY=your_key
-RUNWAY_API_KEY=your_key
+OPENAI_API_KEY=
+
+OPENROUTER_API_KEY_FOR_IMAGE_AND_VIDEO=
+
+ELEVENLABS_API_KEY=
 ```
 
 ---
 
-# Run
+# ▶ Run
 
 ```bash
 streamlit run app.py
@@ -144,9 +235,9 @@ streamlit run app.py
 
 ---
 
-# AI Pipeline
+# 🤖 AI Pipeline (Stage 1)
 
-```
+```text
 User Brief
       │
       ▼
@@ -167,39 +258,89 @@ Promotional Video
 
 ---
 
-# Prompt Engineering Techniques
+# 🚀 Content Engine Pro Workflow (Stage 2)
+
+```text
+User Brief
+    ↓
+Generate Text Assets
+    ↓
+AI Self-Critique
+    ├── PASS → Continue
+    └── FAIL → Regenerate (Max 2)
+    ↓
+Hero Image
+    ↓
+Promotional Video
+    ↓
+Voiceover
+    ↓
+Channel Adaptation
+    ↓
+Final Campaign
+```
+
+---
+
+# 🧠 Prompt Engineering Techniques
 
 ### Campaign Tagline
 
-- Few-shot Prompting
+* Few-shot Prompting
 
 ### Blog
 
-- Role-based Prompting
+* Role-based Prompting
 
 ### Social Posts
 
-- Structured Output
+* Structured Output
 
 ### Hero Image
 
-- Prompt Formula
+* Prompt Formula
 
 ### Promotional Video
 
-- Motion Prompting
+* Motion Prompting
+
+### AI Self-Critique
+
+* Self-Evaluation Prompting
+* Reflection-based Prompting
+
+### Voiceover
+
+* Prompt Transformation
+
+### Multi-Channel Adaptation
+
+* Persona-based Prompting
 
 ---
 
-# APIs Used
+# 🌐 APIs Used
 
-- OpenRouter
-- GPT Image API
-- Runway API
+### Text
+
+* OpenAI GPT-5
+* OpenRouter
+
+### Image
+
+* Gemini Image API
+
+### Video
+
+* Gemini Video API
+
+### Voice
+
+* OpenAI TTS / ElevenLabs
 
 ---
 
-# Folder Responsibilities
+# 📁 Folder Responsibilities
 
 ### app.py
 
@@ -209,17 +350,29 @@ Main Streamlit UI
 
 Generates
 
-- Tagline
-- Blog
-- Social Posts
+* Tagline
+* Blog
+* Social Posts
 
 ### image_gen.py
 
-Creates image prompt and hero image.
+Creates hero image.
 
 ### video_gen.py
 
-Creates motion prompt and promotional video.
+Creates promotional video.
+
+### critic.py
+
+Evaluates generated content and triggers automatic regeneration when required.
+
+### voiceover.py
+
+Generates narration script and voice audio.
+
+### adaptation.py
+
+Creates platform-specific marketing content.
 
 ### config.py
 
@@ -227,34 +380,47 @@ Stores configuration and API settings.
 
 ---
 
-# Future Improvements
+# ⚠ Error Handling
 
-- Voice-over generation
-- Campaign export
-- Download ZIP
-- Campaign history
-- Multiple image styles
-- Tone switcher
-- Regenerate individual assets
+* Empty input validation
+* Missing API keys
+* Network failures
+* AI generation failures
+* Critique retry handling
+* Voice generation failures
+* Adaptation failures
 
 ---
 
-# Learning Outcomes
+# 🚀 Future Improvements
+
+* Campaign PDF Export
+* Cost Tracking
+* A/B Testing
+* Brand Memory
+* Campaign History
+* Multilingual Support
+
+---
+
+# 🎓 Learning Outcomes
 
 This project demonstrates:
 
-- Prompt Engineering
-- Prompt Chaining
-- AI Orchestration
-- Multi-modal AI
-- Streamlit Development
-- OpenRouter Integration
-- GPT Image API
-- Runway Integration
-- API Error Handling
+* Prompt Engineering
+* Prompt Chaining
+* AI Self-Evaluation
+* AI Orchestration
+* Multi-modal AI
+* Voice Synthesis
+* Content Adaptation
+* Streamlit Development
+* Production-ready AI Pipelines
+* API Integration
+* Error Handling
 
 ---
 
-# License
+# 📄 License
 
-This project is intended for educational and learning purposes.
+This project was developed for educational purposes as part of the **Content Engine Pro** assignment.
